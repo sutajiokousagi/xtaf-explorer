@@ -9,26 +9,28 @@ class XtafPart : public QObject
 {
 	Q_OBJECT
 public:    
-                enum Format {
-                        Invalid,
-                        None,
-                        SFCX,
-                        XTAF,
-                };
-                explicit XtafPart(QObject *parent = 0);
-                unsigned int count(void);	// Returns the number of partitions
-                const char *name(quint8 partition);
-                enum Format format(quint8 partition);
-                enum Format format(void);
-                int setPartition(quint8 partition);
-                int setDisk(XtafDisk *disk);
+    enum Format {
+        Invalid,
+        None,
+        SFCX,
+        XTAF,
+    };
+    explicit XtafPart(QObject *parent = 0);
+    unsigned int count(void);	// Returns the number of partitions
+    const char *name(quint8 partition);
+    const char *name();
+    enum Format format(quint8 partition);
+    enum Format format(void);
+    int setPartition(quint8 partition);
+    int setDisk(XtafDisk *disk);
 
-                qint64 length(void);
-                int read(quint64 offset, void *bytes, quint64 size);
+
+    qint64 length(void);
+    int read(quint64 offset, void *bytes, quint64 size);
 
 private:
-                int currentPartition;
-                XtafDisk *disk;
+    int currentPartition;
+    XtafDisk *disk;
 
 signals:
 	

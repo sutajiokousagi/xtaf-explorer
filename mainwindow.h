@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QFileDialog>
+#include <QComboBox>
 
 #include "xtafdisk.h"
 #include "xtafpart.h"
@@ -27,6 +28,8 @@ private:
 	Ui::MainWindow *ui;
 	QFileDialog filePicker;
     QFile imageFile;
+    QComboBox partitionPicker;
+
     XtafFileSystemModel *fsModel;
     XtafDisk disk;
     XtafPart part;
@@ -35,6 +38,7 @@ private:
 
 public slots:
 		void loadImageFile(const QString &imagePath);
+        void selectNewPartition(int part);
 };
 
 #endif // MAINWINDOW_H

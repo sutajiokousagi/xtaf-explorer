@@ -10,9 +10,11 @@ MainWindow::MainWindow(QWidget *parent) :
     fsModel = NULL;
 
 	ui->setupUi(this);
+    ui->toolBar->addWidget(&partitionPicker);
     connect(&filePicker, SIGNAL(fileSelected(QString)),
 			this, SLOT(loadImageFile(QString)));
-
+    connect(&partitionPicker, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(selectNewPartition(int)));
 	openLoadImagePanel();
 }
 
@@ -31,7 +33,6 @@ void MainWindow::openLoadImagePanel()
 
 void MainWindow::loadImageFile(const QString &imagePath)
 {
-	qDebug() << "Loading image file:" << imagePath;
 	imageFile.setFileName(imagePath);
 	if (!imageFile.open(QIODevice::ReadOnly)) {
 		openLoadImagePanel();
@@ -40,7 +41,7 @@ void MainWindow::loadImageFile(const QString &imagePath)
 
     disk.setFile(imageFile);
     part.setDisk(&disk);
-    part.setPartition(6);
+    part.setPartition(part.count()-1);
     fsys.setPartition(&part);
 
     if (fsModel)
@@ -49,5 +50,24 @@ void MainWindow::loadImageFile(const QString &imagePath)
     fsModel->setXtafFilesystem(&fsys);
     ui->fsTree->setModel(fsModel);
 
+    partitionPicker.clear();
+    for (unsigned int i=0; i<part.count(); i++)
+        partitionPicker.addItem(part.name(i), QVariant(i));
+    partitionPicker.setCurrentIndex(part.count()-1);
+
 	return;
+}
+
+void MainWindow::selectNewPartition(int newPart)
+{
+    if (part.format(newPart) != XtafPart::XTAF) {
+        qWarning() << "Format for partition" << newPart << "not recognized";
+        return;
+    }
+    qDebug() << "New partition selected:" << newPart;
+    partitionPicker.setCurrentIndex(newPart);
+    fsModel->setXtafFilesystem(&fsys);
+    fsModel->setPartitionNumber(newPart);
+    ui->fsTree->reset();
+    ui->fsTree->setModel(fsModel);
 }

@@ -83,6 +83,11 @@ const char *XtafPart::name(quint8 part_id)
     return part_id < count() ? partitions[part_id].name : NULL;
 }
 
+const char *XtafPart::name(void)
+{
+    return partitions[currentPartition].name;
+}
+
 enum XtafPart::Format XtafPart::format(quint8 part_id)
 {
     if (part_id >= count())
@@ -94,7 +99,7 @@ enum XtafPart::Format XtafPart::format(quint8 part_id)
 
 enum XtafPart::Format XtafPart::format(void)
 {
-    if (currentPartition >= count() || currentPartition < 0)
+    if (currentPartition >= (int)count() || currentPartition < 0)
         return XtafPart::Invalid;
     return partitions[currentPartition].format;
 }

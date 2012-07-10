@@ -256,6 +256,10 @@ const QList<XtafFile *> &XtafDirectory::entries()
 
 XtafFsys::XtafFsys()
 {
+    xtaf = NULL;
+    root = NULL;
+    cwd = NULL;
+    part = NULL;
 }
 
 int XtafFsys::clusterSize()
@@ -287,11 +291,27 @@ quint32 XtafFsys::nextCluster(quint32 cluster) {
 int XtafFsys::setPartition(XtafPart *new_partition)
 {
     part = new_partition;
+    return reloadPartition();
+}
 
+int XtafFsys::setPartition(int partNum)
+{
+    qDebug() << "Setting partition number" << partNum;
+    part->setPartition(partNum);
+    return reloadPartition();
+}
+
+int XtafFsys::reloadPartition()
+{
+    qDebug() << "Reloading partition.";
     if (xtaf != NULL) {
+        qDebug() << "Reloading partition; clearing out old xtaf";
         if (xtaf->chainmap)
             free(xtaf->chainmap);
         free(xtaf);
+        if (root != NULL)
+            delete root;
+        root = NULL;
         xtaf = NULL;
     }
 
@@ -346,6 +366,7 @@ int XtafFsys::setPartition(XtafPart *new_partition)
     xtaf->chainmap = (uint8_t *)malloc(xtaf->chainmap_size);
     part->read(0x1000, xtaf->chainmap, xtaf->chainmap_size);
 
+    qDebug() << "Loading root directory for partition" << QString(part->name());
     root = new XtafDirectory(NULL, this, xtaf->rdc, QString("Root"));
 
     return 0;

@@ -140,7 +140,14 @@ QVariant XtafFileSystemModel::data(const QModelIndex & index, int role) const
 int XtafFileSystemModel::setXtafFilesystem(XtafFsys *xtafFsys)
 {
     fsys = xtafFsys;
-    emit dataChanged(rootIndex, rootIndex);
+    emit dataChanged(QModelIndex(), QModelIndex());
+    return 0;
+}
+
+int XtafFileSystemModel::setPartitionNumber(int partNum)
+{
+    fsys->setPartition(partNum);
+    emit dataChanged(QModelIndex(), QModelIndex());
     return 0;
 }
 

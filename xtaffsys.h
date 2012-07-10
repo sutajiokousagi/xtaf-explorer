@@ -21,6 +21,7 @@ class XtafFsys : public QObject
 public:
     XtafFsys();
     int setPartition(XtafPart *partition);
+    int setPartition(int partNum);
     XtafDirectory &rootDirectory();
     int clusterSize();
     int readCluster(void *data, quint32 cluster);
@@ -31,6 +32,8 @@ private:
     struct xtaf *xtaf;
     XtafDirectory *cwd;
     XtafDirectory *root;
+
+    int reloadPartition();
 };
 
 

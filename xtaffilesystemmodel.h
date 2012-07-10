@@ -24,6 +24,8 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
     int setXtafFilesystem(XtafFsys *fsys);
+    int setPartitionNumber(int partNum);
+    int reloadPartition();
 
 private:
     XtafFsys *fsys;
