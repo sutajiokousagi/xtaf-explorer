@@ -10,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent) :
     fsModel = NULL;
 
 	ui->setupUi(this);
+    partitionPickerLabel.setText(QString("Partition:"));
+    ui->toolBar->addWidget(&partitionPickerLabel);
     ui->toolBar->addWidget(&partitionPicker);
     connect(&filePicker, SIGNAL(fileSelected(QString)),
 			this, SLOT(loadImageFile(QString)));
@@ -64,10 +66,8 @@ void MainWindow::selectNewPartition(int newPart)
         qWarning() << "Format for partition" << newPart << "not recognized";
         return;
     }
-    qDebug() << "New partition selected:" << newPart;
     partitionPicker.setCurrentIndex(newPart);
     fsModel->setXtafFilesystem(&fsys);
     fsModel->setPartitionNumber(newPart);
     ui->fsTree->reset();
-    ui->fsTree->setModel(fsModel);
 }

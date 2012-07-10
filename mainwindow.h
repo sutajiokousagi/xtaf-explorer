@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QFileDialog>
 #include <QComboBox>
+#include <QLabel>
 
 #include "xtafdisk.h"
 #include "xtafpart.h"
@@ -28,7 +29,9 @@ private:
 	Ui::MainWindow *ui;
 	QFileDialog filePicker;
     QFile imageFile;
+
     QComboBox partitionPicker;
+    QLabel partitionPickerLabel;
 
     XtafFileSystemModel *fsModel;
     XtafDisk disk;
