@@ -196,7 +196,6 @@ int XtafDirectory::loadDirectory()
 
     QChar cluster[fs->clusterSize()];
     quint32 currentCluster = startCluster();
-    int fileCount = 0;
     do {
         struct xtaf_dir_entry *rec;
         fs->readCluster(cluster, currentCluster);
@@ -217,9 +216,17 @@ int XtafDirectory::loadDirectory()
             )
                 goto finished;
 
-            if (fileCount++ > 10)
+            if (rec->start_cluster > fs->partitionSize()) {
+                qDebug() << "Exceeded filesystem size";
                 goto finished;
+            }
 
+            if (rec->name_len > sizeof(rec->filename) && rec->name_len != 0xe5) {
+                qDebug() << "Invalid name length:" << rec->name_len << "on file" << QString((const char *)rec->filename);
+                goto finished;
+            }
+
+            // This filename entry *looks* sane, at least...
             if (rec->file_flags & FF_DIR)
                 _entries.append(new XtafDirectory(this, fs, rec));
             else
@@ -275,6 +282,11 @@ int XtafFsys::readCluster(void *data, quint32 cluster)
     return part->read(start_offset, data, xtaf->cluster_size);
 }
 
+quint64 XtafFsys::partitionSize()
+{
+    return part->length();
+}
+
 quint32 XtafFsys::nextCluster(quint32 cluster) {
     if (xtaf->entry_size == 2) {
         uint16_t *chainmap = (uint16_t *)xtaf->chainmap;
@@ -296,16 +308,13 @@ int XtafFsys::setPartition(XtafPart *new_partition)
 
 int XtafFsys::setPartition(int partNum)
 {
-    qDebug() << "Setting partition number" << partNum;
     part->setPartition(partNum);
     return reloadPartition();
 }
 
 int XtafFsys::reloadPartition()
 {
-    qDebug() << "Reloading partition.";
     if (xtaf != NULL) {
-        qDebug() << "Reloading partition; clearing out old xtaf";
         if (xtaf->chainmap)
             free(xtaf->chainmap);
         free(xtaf);
@@ -366,7 +375,6 @@ int XtafFsys::reloadPartition()
     xtaf->chainmap = (uint8_t *)malloc(xtaf->chainmap_size);
     part->read(0x1000, xtaf->chainmap, xtaf->chainmap_size);
 
-    qDebug() << "Loading root directory for partition" << QString(part->name());
     root = new XtafDirectory(NULL, this, xtaf->rdc, QString("Root"));
 
     return 0;

@@ -32,6 +32,7 @@ private:
 
     QComboBox partitionPicker;
     QLabel partitionPickerLabel;
+    QLabel statusLabel;
 
     XtafFileSystemModel *fsModel;
     XtafDisk disk;
@@ -42,6 +43,7 @@ private:
 public slots:
 		void loadImageFile(const QString &imagePath);
         void selectNewPartition(int part);
+        void selectFile(QModelIndex index);
 };
 
 #endif // MAINWINDOW_H

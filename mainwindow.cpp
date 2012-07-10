@@ -10,13 +10,22 @@ MainWindow::MainWindow(QWidget *parent) :
     fsModel = NULL;
 
 	ui->setupUi(this);
+
+    // Add the "Select Partition" widgets to the toolbar
     partitionPickerLabel.setText(QString("Partition:"));
     ui->toolBar->addWidget(&partitionPickerLabel);
     ui->toolBar->addWidget(&partitionPicker);
+
+    // Add a label to the status bar
+    statusLabel.setText(QString(""));
+    ui->statusBar->addWidget(&statusLabel);
+
     connect(&filePicker, SIGNAL(fileSelected(QString)),
 			this, SLOT(loadImageFile(QString)));
     connect(&partitionPicker, SIGNAL(currentIndexChanged(int)),
             this, SLOT(selectNewPartition(int)));
+    connect(ui->fsTree, SIGNAL(clicked(QModelIndex)),
+            this, SLOT(selectFile(QModelIndex)));
 	openLoadImagePanel();
 }
 
@@ -71,3 +80,17 @@ void MainWindow::selectNewPartition(int newPart)
     fsModel->setPartitionNumber(newPart);
     ui->fsTree->reset();
 }
+
+void MainWindow::selectFile(QModelIndex index)
+{
+    if (!index.isValid()) {
+        statusLabel.setText(QString(""));
+        return;
+    }
+
+    XtafFile *file = static_cast<XtafFile *>(index.internalPointer());
+    QString labelText;
+    QTextStream(&labelText) << "Start clutser: " << file->startCluster();
+    statusLabel.setText(labelText);
+}
+

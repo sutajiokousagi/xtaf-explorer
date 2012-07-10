@@ -26,6 +26,7 @@ public:
     int clusterSize();
     int readCluster(void *data, quint32 cluster);
     quint32 nextCluster(quint32 cluster);
+    quint64 partitionSize();
 
 private:
     XtafPart *part;
