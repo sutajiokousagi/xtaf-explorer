@@ -38,12 +38,13 @@ private:
     XtafDisk disk;
     XtafPart part;
     XtafFsys fsys;
-
+	XtafFile *selectedFile;
 
 public slots:
 		void loadImageFile(const QString &imagePath);
         void selectNewPartition(int part);
-        void selectFile(QModelIndex index);
+		void selectFile(const QItemSelection &selected, const QItemSelection &deselected);
+		void saveFile(void);
 };
 
 #endif // MAINWINDOW_H

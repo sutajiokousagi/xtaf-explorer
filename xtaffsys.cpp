@@ -118,6 +118,35 @@ XtafFile::XtafFile(XtafFile *parent, const struct xtaf_dir_entry *entry)
     //qDebug() << "New file named" << _name << "with flags" << _flags << "and crated at" << _created;
 }
 
+quint64 XtafFile::write(QIODevice &writer)
+{
+	int bytesToWrite = size();
+	int bytesWritten = 0;
+	quint8 cluster[fs->clusterSize()];
+	quint32 currentCluster = startCluster();
+	do {
+		int clusterBytes = sizeof(cluster);
+		if (bytesToWrite < clusterBytes)
+			clusterBytes = bytesToWrite;
+
+		int bytesRead = fs->readCluster(cluster, currentCluster);
+		if (bytesRead != sizeof(cluster)) {
+			qDebug() << "Warning: Wanted" << sizeof(cluster) << "bytes, read" << bytesRead << "bytes";
+		}
+
+		bytesWritten += writer.write((const char *)cluster, clusterBytes);
+		currentCluster = fs->nextCluster(currentCluster);
+		bytesToWrite -= clusterBytes;
+
+	} while (currentCluster && currentCluster != 0xffffffff);
+	return bytesWritten;
+}
+
+void XtafFile::setFilesystem(XtafFsys *filesystem)
+{
+	fs = filesystem;
+}
+
 bool XtafFile::isDeleted()
 {
     return deleted;
@@ -180,6 +209,7 @@ XtafDirectory::XtafDirectory(XtafFile *parent, XtafFsys *filesystem, struct xtaf
     :
       XtafFile(parent, startRec), fs(filesystem), dirIsLoaded(false)
 {
+	setFilesystem(filesystem);
 }
 
 XtafDirectory::XtafDirectory(XtafFile *parent, XtafFsys *filesystem, quint32 startCluster, QString name)
@@ -187,6 +217,7 @@ XtafDirectory::XtafDirectory(XtafFile *parent, XtafFsys *filesystem, quint32 sta
       XtafFile(parent, name, 0, startCluster, 0),
       fs(filesystem), dirIsLoaded(false)
 {
+	setFilesystem(filesystem);
 }
 
 int XtafDirectory::loadDirectory()
@@ -231,6 +262,7 @@ int XtafDirectory::loadDirectory()
                 _entries.append(new XtafDirectory(this, fs, rec));
             else
                 _entries.append(new XtafFile(this, rec));
+			_entries.last()->setFilesystem(fs);
             rec++;
         }
         qDebug() << "Reading next directory cluster...";
@@ -271,7 +303,7 @@ XtafFsys::XtafFsys()
 
 int XtafFsys::clusterSize()
 {
-    return xtaf->cluster_size;
+	return xtaf->cluster_size;
 }
 
 int XtafFsys::readCluster(void *data, quint32 cluster)
@@ -290,11 +322,16 @@ quint64 XtafFsys::partitionSize()
 quint32 XtafFsys::nextCluster(quint32 cluster) {
     if (xtaf->entry_size == 2) {
         uint16_t *chainmap = (uint16_t *)xtaf->chainmap;
-        return (uint32_t)chainmap[cluster];
+		quint32 cluster = qFromBigEndian(chainmap[cluster]);
+		if (cluster & 0xffff == 0xffff)
+			cluster = 0xffffffff;
+		else
+			cluster &= 0xffff;
+		return cluster;
     }
     else if (xtaf->entry_size == 4) {
         uint32_t *chainmap = (uint32_t *)xtaf->chainmap;
-        return (uint32_t)chainmap[cluster];
+		return qFromBigEndian(chainmap[cluster]);
     }
     qDebug() << "Severe error: Unknown entry size" << xtaf->entry_size;
     return 0xffffffff;

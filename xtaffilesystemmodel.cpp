@@ -135,8 +135,11 @@ QVariant XtafFileSystemModel::data(const QModelIndex & index, int role) const
     else if (role == Qt::CheckStateRole)
         return QVariant();
 
-	else if (role == Qt::StatusTipRole)
-		return QVariant();
+	else if (role == Qt::StatusTipRole) {
+		QString labelText;
+		QTextStream(&labelText) << "Start clutser: " << f->startCluster();
+		return QVariant(labelText);
+	}
 
     qDebug() << "Unknown item role" << role;
     return QVariant();

@@ -57,6 +57,8 @@ public:
     const QDateTime &created();
     const QDateTime &accessed();
     const QDateTime &updated();
+	quint64 write(QIODevice &writer);
+	void setFilesystem(XtafFsys *filesystem);
 
 private:
     XtafFile *_parent;
@@ -71,6 +73,7 @@ private:
 
     quint32 _startCluster;
     quint32 _parentCluster;
+	XtafFsys *fs;
 };
 
 

@@ -92,7 +92,7 @@ static struct partition_def partitions_module[] = {
 			XtafPart::XTAF,
 	},
 	{
-			"Four",
+			"Dashboard",
 			0x14000000ULL,
 			0xce30000ULL,
 			XtafPart::XTAF,

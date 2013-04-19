@@ -26,7 +26,7 @@ int XtafDisk::read(quint64 offset, char *bytes, quint64 size)
 		bytes += bytesRead;
 		size -= bytesRead;
 	}
-	return bytesRead;
+	return bytesTotal;
 }
 
 quint64 XtafDisk::size(void)

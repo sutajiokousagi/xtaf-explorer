@@ -24,8 +24,9 @@ MainWindow::MainWindow(QWidget *parent) :
 			this, SLOT(loadImageFile(QString)));
     connect(&partitionPicker, SIGNAL(currentIndexChanged(int)),
             this, SLOT(selectNewPartition(int)));
-    connect(ui->fsTree, SIGNAL(clicked(QModelIndex)),
-            this, SLOT(selectFile(QModelIndex)));
+	connect(ui->actionSaveFile, SIGNAL(triggered()),
+			this, SLOT(saveFile()));
+
 	openLoadImagePanel();
 }
 
@@ -61,6 +62,10 @@ void MainWindow::loadImageFile(const QString &imagePath)
     fsModel->setXtafFilesystem(&fsys);
     ui->fsTree->setModel(fsModel);
 
+	connect(ui->fsTree->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+			this, SLOT(selectFile(QItemSelection,QItemSelection)));
+
+
     partitionPicker.clear();
     for (unsigned int i=0; i<part.count(); i++)
         partitionPicker.addItem(part.name(i), QVariant(i));
@@ -83,8 +88,10 @@ void MainWindow::selectNewPartition(int newPart)
     fsModel->setPartitionNumber(newPart);
 }
 
-void MainWindow::selectFile(QModelIndex index)
+void MainWindow::selectFile(const QItemSelection &selected, const QItemSelection &deselected)
 {
+	Q_UNUSED(deselected);
+	QModelIndex index = selected.at(0).indexes().at(0);
     if (!index.isValid()) {
         statusLabel.setText(QString(""));
         return;
@@ -94,5 +101,33 @@ void MainWindow::selectFile(QModelIndex index)
     QString labelText;
     QTextStream(&labelText) << "Start clutser: " << file->startCluster();
     statusLabel.setText(labelText);
+	selectedFile = file;
 }
 
+void MainWindow::saveFile()
+{
+	if (!selectedFile)
+		return;
+
+	QFileDialog selectFile(ui->centralWidget);
+	selectFile.setFileMode(QFileDialog::AnyFile);
+	selectFile.setAcceptMode(QFileDialog::AcceptSave);
+	selectFile.selectFile(selectedFile->name());
+	if (!selectFile.exec()) {
+		qDebug() << "No file selected";
+		return;
+	}
+
+	QString fileName;
+	fileName = selectFile.selectedFiles()[0];
+
+	QFile saveFile;
+	saveFile.setFileName(fileName);
+	if (!saveFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+		qDebug() << "Couldn't open save file:" << saveFile.errorString();
+		return;
+	}
+
+	selectedFile->write(saveFile);
+	saveFile.close();
+}
