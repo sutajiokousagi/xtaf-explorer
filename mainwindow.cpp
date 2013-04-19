@@ -72,8 +72,11 @@ void MainWindow::loadImageFile(const QString &imagePath)
     partitionPicker.setCurrentIndex(part.count()-1);
 
 	ui->fsTree->header()->setStretchLastSection(false);
-	ui->fsTree->header()->setResizeMode(0, QHeaderView::Stretch);
-
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    ui->fsTree->header()->setResizeMode(0, QHeaderView::Stretch);
+#else
+    ui->fsTree->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+#endif
 	return;
 }
 

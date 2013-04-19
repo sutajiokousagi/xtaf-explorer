@@ -322,12 +322,12 @@ quint64 XtafFsys::partitionSize()
 quint32 XtafFsys::nextCluster(quint32 cluster) {
     if (xtaf->entry_size == 2) {
         uint16_t *chainmap = (uint16_t *)xtaf->chainmap;
-		quint32 cluster = qFromBigEndian(chainmap[cluster]);
-		if (cluster & 0xffff == 0xffff)
-			cluster = 0xffffffff;
+        quint32 retCluster = qFromBigEndian(chainmap[cluster]);
+        if ((retCluster & 0xffff) == 0xffff)
+            retCluster = 0xffffffff;
 		else
-			cluster &= 0xffff;
-		return cluster;
+            retCluster &= 0xffff;
+        return retCluster;
     }
     else if (xtaf->entry_size == 4) {
         uint32_t *chainmap = (uint32_t *)xtaf->chainmap;

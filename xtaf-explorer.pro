@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui declarative
 
 TARGET = xtaf-explorer
 TEMPLATE = app
