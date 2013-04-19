@@ -6,7 +6,7 @@
 
 QT       += core gui
 
-TARGET = fatx-explorer
+TARGET = xtaf-explorer
 TEMPLATE = app
 
 
