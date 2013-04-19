@@ -10,6 +10,7 @@ XtafFileSystemModel::XtafFileSystemModel(QObject *parent) :
 
 QModelIndex XtafFileSystemModel::index(const QModelIndex & parent) const
 {
+	Q_UNUSED(parent);
     return rootIndex;
 }
 
@@ -71,13 +72,14 @@ int XtafFileSystemModel::rowCount(const QModelIndex & parent) const
         return 0;
     }
 
-    dir = (XtafDirectory *)file;
+	dir = (XtafDirectory *)file;
     return dir->entries().size();
 }
 
 int XtafFileSystemModel::columnCount(const QModelIndex & parent) const
 {
-    return 5;
+	Q_UNUSED(parent);
+	return 5;
 }
 
 QVariant XtafFileSystemModel::data(const QModelIndex & index, int role) const
@@ -87,10 +89,10 @@ QVariant XtafFileSystemModel::data(const QModelIndex & index, int role) const
         qWarning() << "Data model is NULL";
 
     if (role == Qt::SizeHintRole) {
-        if (index.column() == 0)
+		if (index.column() == 1)
             return QVariant(QSize(400,24));
         else
-            return QVariant(QSize(50,24));
+			return QVariant(QSize(50,24));
     }
 
     else if (role == Qt::DisplayRole) {
@@ -133,6 +135,9 @@ QVariant XtafFileSystemModel::data(const QModelIndex & index, int role) const
     else if (role == Qt::CheckStateRole)
         return QVariant();
 
+	else if (role == Qt::StatusTipRole)
+		return QVariant();
+
     qDebug() << "Unknown item role" << role;
     return QVariant();
 }
@@ -140,14 +145,14 @@ QVariant XtafFileSystemModel::data(const QModelIndex & index, int role) const
 int XtafFileSystemModel::setXtafFilesystem(XtafFsys *xtafFsys)
 {
     fsys = xtafFsys;
-    emit dataChanged(QModelIndex(), QModelIndex());
+	emit reset();
     return 0;
 }
 
 int XtafFileSystemModel::setPartitionNumber(int partNum)
 {
     fsys->setPartition(partNum);
-    emit dataChanged(QModelIndex(), QModelIndex());
+	emit reset();
     return 0;
 }
 
@@ -163,16 +168,19 @@ bool XtafFileSystemModel::hasChildren(const QModelIndex & parent) const
 
 Qt::ItemFlags XtafFileSystemModel::flags(const QModelIndex & index) const
 {
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+	Q_UNUSED(index);
+	return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
 QVariant XtafFileSystemModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (role == Qt::SizeHintRole) {
+	Q_UNUSED(orientation);
+
+	if (role == Qt::SizeHintRole) {
         if (section == 0)
             return QVariant(QSize(400,24));
         else
-            return QVariant(QSize(50,24));
+			return QVariant(QSize(50,24));
     }
 
     else if (role == Qt::DisplayRole) {

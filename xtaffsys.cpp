@@ -216,7 +216,7 @@ int XtafDirectory::loadDirectory()
             )
                 goto finished;
 
-            if (rec->start_cluster > fs->partitionSize()) {
+			if (qFromBigEndian(rec->start_cluster) > fs->partitionSize()) {
                 qDebug() << "Exceeded filesystem size";
                 goto finished;
             }

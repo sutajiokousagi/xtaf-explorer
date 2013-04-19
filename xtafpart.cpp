@@ -68,7 +68,7 @@ static struct partition_def partitions[] = {
 
 XtafPart::XtafPart(QObject *parent) :
     QObject(parent),
-    currentPartition(-1)
+	_currentPart(-1)
 {
 }
 
@@ -85,7 +85,7 @@ const char *XtafPart::name(quint8 part_id)
 
 const char *XtafPart::name(void)
 {
-    return partitions[currentPartition].name;
+	return partitions[_currentPart].name;
 }
 
 enum XtafPart::Format XtafPart::format(quint8 part_id)
@@ -95,13 +95,16 @@ enum XtafPart::Format XtafPart::format(quint8 part_id)
     return partitions[part_id].format;
 }
 
-
+int XtafPart::currentPartition()
+{
+	return _currentPart;
+}
 
 enum XtafPart::Format XtafPart::format(void)
 {
-    if (currentPartition >= (int)count() || currentPartition < 0)
+	if (_currentPart >= (int)count() || _currentPart < 0)
         return XtafPart::Invalid;
-    return partitions[currentPartition].format;
+	return partitions[_currentPart].format;
 }
 
 
@@ -109,7 +112,7 @@ int XtafPart::setPartition(quint8 part_id)
 {
     if (part_id >= count())
         return -1;
-    currentPartition = part_id;
+	_currentPart = part_id;
         return 0;
 }
 
@@ -125,19 +128,19 @@ int XtafPart::setDisk(XtafDisk *newDisk)
 qint64 XtafPart::length(void) {
     qint64 length;
 
-    if (!disk || currentPartition < 0)
+	if (!disk || _currentPart < 0)
         return -1;
 
-    length = partitions[currentPartition].length;
+	length = partitions[_currentPart].length;
 
     if (!length)
-        length = disk->size() - partitions[currentPartition].offset;
+		length = disk->size() - partitions[_currentPart].offset;
     return length;
 }
 
 int XtafPart::read(quint64 offset, void *bytes, quint64 size)
 {
-    if (!disk || currentPartition < 0)
+	if (!disk || _currentPart < 0)
         return -1;
 
     if (offset > (quint64)length())
@@ -145,6 +148,6 @@ int XtafPart::read(quint64 offset, void *bytes, quint64 size)
     if (offset+size > (quint64)length())
         size = length()-offset;
 
-    offset += partitions[currentPartition].offset;
+	offset += partitions[_currentPart].offset;
     return disk->read(offset, (char *)bytes, size);
 }

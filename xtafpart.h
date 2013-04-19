@@ -27,9 +27,10 @@ public:
 
     qint64 length(void);
     int read(quint64 offset, void *bytes, quint64 size);
+	int currentPartition();
 
 private:
-    int currentPartition;
+	int _currentPart;
     XtafDisk *disk;
 
 signals:

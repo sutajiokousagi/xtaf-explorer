@@ -9,7 +9,7 @@
 #include "xtafdisk.h"
 #include "xtafpart.h"
 #include "xtaffsys.h"
-#include "XtafFileSystemModel.h"
+#include "xtaffilesystemmodel.h"
 
 namespace Ui {
 class MainWindow;

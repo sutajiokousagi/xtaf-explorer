@@ -36,7 +36,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::openLoadImagePanel()
 {
-    filePicker.setNameFilter(tr("Disk Images (*.img)"));
+	filePicker.setNameFilter(tr("Disk Images (*.img; *.bin)"));
     if (!filePicker.exec())
 		exit(0);
 	return;
@@ -66,6 +66,9 @@ void MainWindow::loadImageFile(const QString &imagePath)
         partitionPicker.addItem(part.name(i), QVariant(i));
     partitionPicker.setCurrentIndex(part.count()-1);
 
+	ui->fsTree->header()->setStretchLastSection(false);
+	ui->fsTree->header()->setResizeMode(0, QHeaderView::Stretch);
+
 	return;
 }
 
@@ -75,10 +78,9 @@ void MainWindow::selectNewPartition(int newPart)
         qWarning() << "Format for partition" << newPart << "not recognized";
         return;
     }
-    partitionPicker.setCurrentIndex(newPart);
+	partitionPicker.setCurrentIndex(newPart);
     fsModel->setXtafFilesystem(&fsys);
     fsModel->setPartitionNumber(newPart);
-    ui->fsTree->reset();
 }
 
 void MainWindow::selectFile(QModelIndex index)

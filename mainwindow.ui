@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>525</width>
-    <height>389</height>
+    <width>972</width>
+    <height>408</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,6 +20,15 @@
       <property name="animated">
        <bool>true</bool>
       </property>
+      <attribute name="headerCascadingSectionResizes">
+       <bool>false</bool>
+      </attribute>
+      <attribute name="headerDefaultSectionSize">
+       <number>120</number>
+      </attribute>
+      <attribute name="headerStretchLastSection">
+       <bool>false</bool>
+      </attribute>
      </widget>
     </item>
    </layout>
@@ -29,8 +38,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>525</width>
-     <height>21</height>
+     <width>972</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>
