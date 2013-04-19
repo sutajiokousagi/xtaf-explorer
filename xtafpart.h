@@ -28,6 +28,7 @@ public:
     qint64 length(void);
     int read(quint64 offset, void *bytes, quint64 size);
 	int currentPartition();
+	quint64 start(void);
 
 private:
 	int _currentPart;

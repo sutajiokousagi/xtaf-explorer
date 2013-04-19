@@ -356,10 +356,10 @@ int XtafFsys::reloadPartition()
     xtaf->cluster_size = xtaf->spc * 512;
     xtaf->cluster_count = xtaf->length / xtaf->cluster_size;
     xtaf->entry_size = (xtaf->cluster_count>=0xfff0?4:2);
-    xtaf->chainmap_size = (xtaf->cluster_count*xtaf->entry_size);
-    xtaf->chainmap_size = (xtaf->chainmap_size / 4096 + 1) * 4096;
+	xtaf->chainmap_size = (xtaf->cluster_count*xtaf->entry_size);
+	xtaf->chainmap_size = (xtaf->chainmap_size / 4096 + 1) * 4096;
 
-    /*
+/*
     qDebug() << "id:" << xtaf->id;
     qDebug() << "spc:" << xtaf->spc;
     qDebug() << "rdc:" << xtaf->rdc;
@@ -368,9 +368,10 @@ int XtafFsys::reloadPartition()
     qDebug() << "Root directory cluster:" << xtaf->rdc;
     qDebug() << "Cluster size:" << xtaf->cluster_size;
     qDebug() << "Number of clusters:" << xtaf->cluster_count;
-    qDebug() << "Chainmap entries are" << xtaf->entry_size << "bytes";
+	qDebug() << "Chainmap entries are" << xtaf->entry_size << "bytes";
     qDebug() << "Chainmap size:" << xtaf->chainmap_size << "bytes";
-    */
+	qDebug() << "First cluster is at offset" << QString::number(part->start()+xtaf->chainmap_size+0x1000, 16);
+*/
 
     xtaf->chainmap = (uint8_t *)malloc(xtaf->chainmap_size);
     part->read(0x1000, xtaf->chainmap, xtaf->chainmap_size);

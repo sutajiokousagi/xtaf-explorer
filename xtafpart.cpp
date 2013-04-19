@@ -19,7 +19,7 @@ struct part {
 
 
 /* Hardcoded into the Xbox 360 Phat's ROM */
-static struct partition_def partitions[] = {
+static struct partition_def partitions_rom[] = {
         {
                 "Security Sector",
                 0x2000ULL,
@@ -64,7 +64,54 @@ static struct partition_def partitions[] = {
                 0,
                 XtafPart::XTAF,
         },
+		{
+				NULL,
+				0,
+				0,
+				XtafPart::None,
+		}, // Sentinal
 };
+
+static struct partition_def partitions_module[] = {
+	{
+			"Online",
+			0,
+			0x8000000ULL,
+			XtafPart::XTAF,
+	},
+	{
+			"Cache",
+			0x8000000ULL,
+			0x4000000ULL,
+			XtafPart::XTAF,
+	},
+	{
+			"Empty",
+			0xc000000ULL,
+			0x8000000ULL,
+			XtafPart::XTAF,
+	},
+	{
+			"Four",
+			0x14000000ULL,
+			0xce30000ULL,
+			XtafPart::XTAF,
+	},
+	{
+			"Data",
+			0x20e30000ULL,
+			0,
+			XtafPart::XTAF,
+	},
+	{
+			NULL,
+			0,
+			0,
+			XtafPart::None,
+	}, // Sentinal
+};
+
+static struct partition_def *partitions = partitions_rom;
 
 XtafPart::XtafPart(QObject *parent) :
     QObject(parent),
@@ -75,7 +122,11 @@ XtafPart::XtafPart(QObject *parent) :
 
 unsigned int XtafPart::count(void)
 {
-    return sizeof(partitions)/sizeof(*partitions);
+	int count;
+	for (count=0; partitions[count].name != NULL; count++) {
+		;
+	}
+	return count;
 }
 
 const char *XtafPart::name(quint8 part_id)
@@ -118,9 +169,18 @@ int XtafPart::setPartition(quint8 part_id)
 
 int XtafPart::setDisk(XtafDisk *newDisk)
 {
+	char magic[4];
     if (!newDisk)
         return -1;
     disk = newDisk;
+
+	disk->read(0, magic, sizeof(magic));
+	if (!memcmp(magic, "XTAF", sizeof(magic))) {
+		partitions = partitions_module;
+	}
+	else
+		partitions = partitions_rom;
+
     return 0;
 }
 
@@ -136,6 +196,13 @@ qint64 XtafPart::length(void) {
     if (!length)
 		length = disk->size() - partitions[_currentPart].offset;
     return length;
+}
+
+quint64 XtafPart::start(void)
+{
+	if (!disk || _currentPart < 0)
+		return -1;
+	return partitions[_currentPart].offset;
 }
 
 int XtafPart::read(quint64 offset, void *bytes, quint64 size)
